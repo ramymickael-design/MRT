@@ -2390,18 +2390,15 @@ function Calendar({trades}){
               );
             })}
             {/* Week PnL cell */}
-            {(()=>{
-              const {pnl,count}=weekPnl[wi];
-              if(count===0) return <div className="cal-week-cell wk-zero"><span className="cal-week-sub" style={{opacity:.3}}>—</span></div>;
-              return(
-                <div className={`cal-week-cell ${pnl>0?"wk-pos":pnl<0?"wk-neg":"wk-zero"}`}>
-                  <span className={`cal-week-pnl ${pnl>0?"green":pnl<0?"red":"dim"}`}>
-                    {pnl>0?"+":""}{Math.abs(pnl)>=1000?(pnl/1000).toFixed(1)+"k":pnl}
+            {weekPnl[wi].count===0
+              ? <div className="cal-week-cell wk-zero"><span className="cal-week-sub" style={{opacity:.3}}>—</span></div>
+              : <div className={`cal-week-cell ${weekPnl[wi].pnl>0?"wk-pos":weekPnl[wi].pnl<0?"wk-neg":"wk-zero"}`}>
+                  <span className={`cal-week-pnl ${weekPnl[wi].pnl>0?"green":weekPnl[wi].pnl<0?"red":"dim"}`}>
+                    {weekPnl[wi].pnl>0?"+":""}{Math.abs(weekPnl[wi].pnl)>=1000?(weekPnl[wi].pnl/1000).toFixed(1)+"k":weekPnl[wi].pnl}
                   </span>
-                  <span className="cal-week-sub">{count}t</span>
+                  <span className="cal-week-sub">{weekPnl[wi].count}t</span>
                 </div>
-              );
-            })()}
+            }
           </div>
         ))}
 
@@ -3020,14 +3017,13 @@ function Education({profile,currentUserEmail}){
               {previewItem.type==='pdf'&&previewItem.url&&<iframe src={previewItem.url} style={{width:'100%',height:500,border:'none',borderRadius:8}} title={previewItem.title}/>}
               {previewItem.type==='video'&&previewItem.url&&<video controls style={{width:'100%',borderRadius:8,maxHeight:480}} src={previewItem.url}/>}
               {previewItem.type==='image'&&previewItem.url&&<img src={previewItem.url} alt={previewItem.title} style={{width:'100%',borderRadius:8,maxHeight:500,objectFit:'contain'}}/>}
-              {previewItem.type==='link'&&previewItem.embedUrl&&(()=>{
-                let src=previewItem.embedUrl;
-                const yt=src.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-                if(yt)src=`https://www.youtube.com/embed/${yt[1]}`;
-                const lm=src.match(/loom\.com\/share\/([^?\s]+)/);
-                if(lm)src=`https://www.loom.com/embed/${lm[1]}`;
-                return<iframe src={src} style={{width:'100%',height:480,border:'none',borderRadius:8}} allowFullScreen title={previewItem.title}/>;
-              })()}
+              {previewItem.type==='link'&&previewItem.embedUrl&&(
+                <iframe
+                  src={previewItem.embedUrl.replace(/(?:youtube\.com\/watch\?v=)([^&\s]+)/,'https://www.youtube.com/embed/$1').replace(/(?:youtu\.be\/)([^&\s]+)/,'https://www.youtube.com/embed/$1').replace(/loom\.com\/share\/([^?\s]+)/,'https://www.loom.com/embed/$1')}
+                  style={{width:'100%',height:480,border:'none',borderRadius:8}}
+                  allowFullScreen title={previewItem.title}
+                />
+              )}
               {previewItem.url&&<div style={{marginTop:14,textAlign:'center'}}><a href={previewItem.url} target="_blank" rel="noopener noreferrer" style={{color:'#3b9eff',fontSize:13,textDecoration:'none'}}>Open in new tab ↗</a></div>}
             </div>
           </div>
@@ -4275,14 +4271,11 @@ function App(){
             <span className="topbar-stat">PF: <span className={m.pf>=1?"green":"red"}>{m.pf===Infinity?"∞":m.pf.toFixed(2)}</span></span>
             <span className={pCol(m.netPnl)} style={{fontFamily:"'DM Mono','Courier New',monospace",fontWeight:700,fontSize:13}}>{fmt$(m.netPnl)}</span>
             <button className="btn btn-primary" style={{padding:"8px 16px",fontSize:12}} onClick={()=>setShowTrade(true)}>+ New Trade</button>
-                      {subscription?.status==='trialing'&&subscription?.trial_end&&(()=>{
-            const days=Math.max(0,Math.ceil((new Date(subscription.trial_end)-new Date())/86400000));
-            return days>0?(
-              <span onClick={()=>setShowPaywall(true)} style={{fontSize:11,color:'#f59e0b',background:'rgba(245,158,11,.1)',border:'1px solid rgba(245,158,11,.2)',borderRadius:8,padding:'5px 10px',cursor:'pointer',fontWeight:600}}>
-                {days}d trial left — Upgrade
-              </span>
-            ):null;
-          })()}
+                      {subscription?.status==='trialing'&&subscription?.trial_end&&Math.max(0,Math.ceil((new Date(subscription.trial_end)-new Date())/86400000))>0&&(
+            <span onClick={()=>setShowPaywall(true)} style={{fontSize:11,color:'#f59e0b',background:'rgba(245,158,11,.1)',border:'1px solid rgba(245,158,11,.2)',borderRadius:8,padding:'5px 10px',cursor:'pointer',fontWeight:600}}>
+              {Math.max(0,Math.ceil((new Date(subscription.trial_end)-new Date())/86400000))}d trial left — Upgrade
+            </span>
+          )}
           <button onClick={handleSignOut} style={{padding:"7px 13px",background:"none",border:"1px solid #222",borderRadius:8,color:"#555",fontSize:12,cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}} onMouseOver={e=>{e.target.style.borderColor="#f44060";e.target.style.color="#f44060";}} onMouseOut={e=>{e.target.style.borderColor="#222";e.target.style.color="#555";}}>Sign out</button>
           </div>
         </div>
