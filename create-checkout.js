@@ -32,8 +32,8 @@ export default async function handler(req) {
       'subscription_data[trial_period_days]':'7',
       'subscription_data[metadata][user_id]':userId,
       'subscription_data[metadata][plan]':plan,
-      'success_url':`${APP_URL}/MRT.html?subscribed=true&plan=${plan}`,
-      'cancel_url':`${APP_URL}/MRT.html?canceled=true`,
+      'success_url':`${APP_URL}/MRT?subscribed=true&plan=${plan}`,
+      'cancel_url':`${APP_URL}/MRT?canceled=true`,
       'allow_promotion_codes':'true',
     });
 
